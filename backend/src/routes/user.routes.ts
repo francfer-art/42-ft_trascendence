@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { resolve } from 'node:path';
 import { mkdirSync } from 'node:fs';
 import {
   deleteCurrentUser,
@@ -16,14 +15,14 @@ import {
   rejectFriendRequest,
   updateCurrentUser,
 } from '../controllers/user.controller';
+import { UPLOADS_DIR } from '../utils/uploads';
 
 const router = Router();
 
-const uploadDir = resolve(process.cwd(), 'uploads');
-mkdirSync(uploadDir, { recursive: true });
+mkdirSync(UPLOADS_DIR, { recursive: true });
 
 const storage = multer.diskStorage({
-  destination: uploadDir,
+  destination: UPLOADS_DIR,
   filename: (_req, file, cb) => {
     const safeName = file.originalname.replace(/\s+/g, '-');
     const uniqueName = `${Date.now()}-${safeName}`;

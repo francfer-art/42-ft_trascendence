@@ -14,7 +14,7 @@ import defaultProfileImage from '../../assets/defaultProfile.webp';
 const getImageUrl = (image?: string | null): string => {
   if (!image) return defaultProfileImage;
   if (image.startsWith('http')) return image;
-  return `http://localhost:3000${image}`;
+  return `/api${image}`;
 };
 
 export function ProfilePage() {

@@ -42,7 +42,7 @@ type MessagesResponse = {
 const getImageUrl = (image?: string | null): string => {
   if (!image) return defaultProfileImage;
   if (image.startsWith('http')) return image;
-  return `http://localhost:3000${image}`;
+  return `/api${image}`;
 };
 
 const friendName = (u: ChatUser) =>

@@ -130,7 +130,9 @@ async function seedTestUsers() {
 }
 
 async function main() {
-  await seedTestUsers();
+  if (process.env.SEED_TEST_USERS !== 'false') {
+    await seedTestUsers();
+  }
 
   await seedSharedTranslations('translations/game.json');
   await seedSharedTranslations('translations/loginPage.json');

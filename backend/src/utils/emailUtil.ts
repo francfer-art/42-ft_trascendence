@@ -1,5 +1,11 @@
 import nodemailer from 'nodemailer';
 
+// Without SMTP credentials no email is sent and new accounts are verified on
+// signup (e.g. on Railway, where outbound SMTP is only allowed on the Pro plan).
+export const isEmailEnabled = Boolean(
+  process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD,
+);
+
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
@@ -8,7 +14,27 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_EMAIL,
     pass: process.env.SMTP_PASSWORD,
   },
+  // Fail fast instead of hanging the request when SMTP is unreachable
+  connectionTimeout: 10_000,
+  greetingTimeout: 10_000,
+  socketTimeout: 20_000,
 });
+
+async function sendMail(to: string, subject: string, content: string) {
+  if (!isEmailEnabled) {
+    console.warn(
+      `[Email] SMTP is not configured, skipping "${subject}" to ${to}`,
+    );
+    return;
+  }
+
+  await transporter.sendMail({
+    from: `"Villainous" <${process.env.SMTP_EMAIL}>`,
+    to,
+    subject,
+    html: emailLayout(content),
+  });
+}
 
 // ── Shared layout wrapper ────────────────────────────────────────────────────
 
@@ -115,12 +141,7 @@ export async function sendVerificationEmail({ email, name, confirmationUrl }: Ve
     </p>
   `;
 
-  await transporter.sendMail({
-    from: `"Villainous" <${process.env.SMTP_EMAIL}>`,
-    to: email,
-    subject: 'Confirm your Villainous account',
-    html: emailLayout(content),
-  });
+  await sendMail(email, 'Confirm your Villainous account', content);
 }
 
 interface SendPasswordResetEmailParams {
@@ -153,10 +174,5 @@ export async function sendPasswordResetEmail({ email, name, resetUrl }: SendPass
     </p>
   `;
 
-  await transporter.sendMail({
-    from: `"Villainous" <${process.env.SMTP_EMAIL}>`,
-    to: email,
-    subject: 'Reset your Villainous password',
-    html: emailLayout(content),
-  });
+  await sendMail(email, 'Reset your Villainous password', content);
 }

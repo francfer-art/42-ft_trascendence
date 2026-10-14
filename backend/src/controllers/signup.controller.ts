@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { prisma } from '../utils/prisma';
-import { sendVerificationEmail } from '../utils/emailUtil';
+import { isEmailEnabled, sendVerificationEmail } from '../utils/emailUtil';
 import { generateToken, hashToken } from '../utils/tokenUtils';
 
 export async function createUser(req: Request, res: Response) {
@@ -39,35 +39,38 @@ export async function createUser(req: Request, res: Response) {
         email,
         name: email.split('@')[0],
         passwordHash,
-        emailVerified: false, // Set to true for testing purposes; in production, set to false and require email verification
+        // Without email sending there is no way to confirm the address
+        emailVerified: !isEmailEnabled,
       },
     });
 
-    // Generate verification token
-    const token = generateToken();
-    const tokenHash = hashToken(token);
+    if (isEmailEnabled) {
+      // Generate verification token
+      const token = generateToken();
+      const tokenHash = hashToken(token);
 
-    // Token expires in 24 hours
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      // Token expires in 24 hours
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    await prisma.emailVerificationToken.create({
-      data: {
-        tokenHash,
-        userId: user.id,
-        expiresAt,
-      },
-    });
-
-    const confirmationUrl = `${(process.env.FRONTEND_URL ?? '').replace(/\/+$/, '')}/confirm-email?token=${token}`;
-
-    try {
-      await sendVerificationEmail({
-        email: user.email,
-        name: user.name,
-        confirmationUrl,
+      await prisma.emailVerificationToken.create({
+        data: {
+          tokenHash,
+          userId: user.id,
+          expiresAt,
+        },
       });
-    } catch (error) {
-      console.error('Could not send verification email:', error);
+
+      const confirmationUrl = `${(process.env.FRONTEND_URL ?? '').replace(/\/+$/, '')}/confirm-email?token=${token}`;
+
+      try {
+        await sendVerificationEmail({
+          email: user.email,
+          name: user.name,
+          confirmationUrl,
+        });
+      } catch (error) {
+        console.error('Could not send verification email:', error);
+      }
     }
 
     return res.status(201).json({

@@ -3,7 +3,8 @@ import { prisma } from '../utils/prisma';
 import bcrypt from 'bcrypt';
 import { createSession } from '../services/session.services';
 import { unlink } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { basename, resolve } from 'node:path';
+import { UPLOADS_DIR } from '../utils/uploads';
 import { isUserOnline } from '../utils/sockets/presence.store';
 import { emitToUserRoom } from '../utils/sockets/socket.server';
 import { SOCKET_EVENTS } from '../utils/sockets/socket.events';
@@ -668,7 +669,7 @@ export async function updateCurrentUser(req: Request, res: Response) {
     const imagePath = file ? `/uploads/${file.filename}` : undefined;
 
     if (file && oldImage?.startsWith('/uploads/')) {
-      const oldImagePath = resolve(process.cwd(), `.${oldImage}`);
+      const oldImagePath = resolve(UPLOADS_DIR, basename(oldImage));
 
       await unlink(oldImagePath).catch(() => null);
     }

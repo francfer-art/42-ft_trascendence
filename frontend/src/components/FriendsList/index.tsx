@@ -32,7 +32,7 @@ const getImageUrl = (image?: string | null) => {
     return image;
   }
 
-  return `http://localhost:3000${image}`;
+  return `/api${image}`;
 };
 
 export function FriendsList() {

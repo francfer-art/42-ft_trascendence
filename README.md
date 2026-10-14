@@ -184,6 +184,50 @@ Generate Prisma Client:
 make prisma-generate
 ```
 
+## Despliegue en Railway
+
+El `Dockerfile` de la raíz genera una imagen de producción con todo en un único servicio: el backend sirve la API (bajo `/api`), Socket.IO y el frontend compilado. Railway lo detecta automáticamente.
+
+1. En Railway: **New Project → Deploy from GitHub repo** y elige este repositorio.
+2. Cuando termine el primer deploy, en el servicio: **Settings → Networking → Generate Domain**.
+
+No hace falta definir ninguna variable. Al arrancar, el contenedor:
+
+1. Arranca un PostgreSQL dentro del propio contenedor si no hay `DATABASE_URL`.
+2. Sincroniza el esquema (`prisma db push`) y ejecuta el seed (villanos, cartas, traducciones y usuarios de prueba).
+3. Arranca el backend.
+
+Cada push a `main` vuelve a desplegar.
+
+### Conservar los datos entre deploys
+
+Sin nada más, la base de datos y los avatares se pierden en cada deploy. Para conservarlos:
+
+- **Volumen (lo más sencillo):** clic derecho en el lienzo del proyecto (o `⌘K`) → **Volume**, conéctalo a este servicio con mount path `/data`. La base de datos y los avatares se guardan ahí automáticamente.
+- **PostgreSQL de Railway:** añade una base de datos PostgreSQL al proyecto y, en las variables del servicio, define `DATABASE_URL=${{Postgres.DATABASE_URL}}`. Los avatares solo se conservan si además añades un volumen.
+
+Si un cambio en `schema.prisma` borra datos, `prisma db push` no lo aplica y el deploy falla mostrando el aviso en los logs.
+
+### Variables opcionales
+
+| Variable | Uso |
+| --- | --- |
+| `DATABASE_URL` | Base de datos externa en lugar del PostgreSQL interno. |
+| `SMTP_EMAIL`, `SMTP_PASSWORD` | Emails de verificación y de recuperación de contraseña. Sin ellas, las cuentas quedan verificadas al registrarse. Railway solo permite SMTP en el plan Pro. |
+| `SEED_TEST_USERS=false` | No crear los usuarios de prueba (`a@a.com` … `d@d.com`, contraseña `123123123`). |
+| `FORTYTWO_CLIENT_ID`, `FORTYTWO_CLIENT_SECRET` | Login con 42. La redirect URI por defecto es `https://<dominio>/api/auth/42/callback`. |
+
+Opcional: en **Settings → Deploy → Healthcheck Path** pon `/api/health` para que Railway no mande tráfico al nuevo deploy hasta que haya arrancado.
+
+### Probar la imagen de producción en local
+
+```bash
+docker build -t transcendence .
+docker run --rm -p 3000:3000 transcendence
+```
+
+Y abre http://localhost:3000.
+
 ## Traducciones
 
 Idiomas disponibles: inglés (`en`), español (`es`) y francés (`fr`). El botón de idioma recorre los tres en ese orden.

@@ -65,18 +65,21 @@ export function LoginPage() {
 
   // ── handlers ───────────────────────────────────────────────────────────
 
+  const requestLogin = (loginEmail: string, loginPassword: string) =>
+    fetch('/api/users/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+    });
+
   const handleLogin = async () => {
     const errKey = getLoginErrorKey();
     if (errKey) { setLoginErrorKey(errKey); return; }
     setLoginErrorKey('');
     setLoginLoading(true);
     try {
-      const res = await fetch('/api/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await requestLogin(email, password);
       const data = await res.json();
       if (!res.ok) {
         if (res.status === 404) setLoginErrorKey('loginNotFound');
@@ -111,6 +114,19 @@ export function LoginPage() {
         if (res.status === 409) setSignupErrorKey('signupEmailExists');
         else if (res.status === 400 && msg.toLowerCase().includes('8')) setSignupErrorKey('passwordTooShort');
         else setSignupErrorKey('signupFailed');
+        return;
+      }
+      if (data.emailVerified) {
+        // The server doesn't send verification emails: the account is already active
+        const loginRes = await requestLogin(signupEmail, signupPassword);
+        if (loginRes.ok) {
+          const loginData = await loginRes.json();
+          setUser(loginData.user);
+          navigate('/home');
+        } else {
+          setEmail(signupEmail);
+          switchMode('login');
+        }
         return;
       }
       navigate('/email-confirmation');

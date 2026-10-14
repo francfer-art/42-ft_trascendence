@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import cookieParser from 'cookie-parser';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { createServer } from 'node:http';
 import { Server, type Socket } from 'socket.io';
 
@@ -23,6 +23,7 @@ import { createCardRouter } from './routes/card.routes';
 // import { VillainJsonModel } from './models/local-file-system/villain.model';
 import { VillainPrismaModel } from './models/prisma/villain.prisma.model';
 import { CardPrismaModel } from './models/prisma/card.prisma.model';
+import { UPLOADS_DIR } from './utils/uploads';
 
 const app = express();
 
@@ -34,23 +35,63 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-app.use('/assets', express.static(resolve(process.cwd(), 'assets')));
-app.use('/uploads', express.static(resolve(process.cwd(), 'uploads')));
 
-app.get('/health', (_req, res) => {
+const api = express.Router();
+
+api.use('/assets', express.static(resolve(process.cwd(), 'assets')));
+api.use('/uploads', express.static(UPLOADS_DIR));
+
+api.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
   });
 });
 
-app.use('/auth', authRoutes);
-app.use('/users', userRoutes);
-app.use('/conversations', chatRoutes);
-app.use('/signup', createUserRoutes);
-app.use('/how-to-play', howToPlayRoutes);
-app.use('/translations', createTranslationsRouter(TranslationsJsonModel));
-app.use('/villains', createVillainRouter(VillainPrismaModel));
-app.use('/cards', createCardRouter(CardPrismaModel));
+api.use('/auth', authRoutes);
+api.use('/users', userRoutes);
+api.use('/conversations', chatRoutes);
+api.use('/signup', createUserRoutes);
+api.use('/how-to-play', howToPlayRoutes);
+api.use('/translations', createTranslationsRouter(TranslationsJsonModel));
+api.use('/villains', createVillainRouter(VillainPrismaModel));
+api.use('/cards', createCardRouter(CardPrismaModel));
+
+// The frontend always calls the API under /api
+app.use('/api', api);
+
+// FRONTEND_DIST is set by the production image (root Dockerfile): this server
+// then also serves the built frontend, so the whole app runs on a single origin.
+const frontendDist = process.env.FRONTEND_DIST
+  ? resolve(process.env.FRONTEND_DIST)
+  : null;
+
+if (frontendDist) {
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ error: 'Not found' });
+  });
+  app.use(
+    '/assets',
+    express.static(join(frontendDist, 'assets'), {
+      fallthrough: false,
+      immutable: true,
+      maxAge: '1y',
+    }),
+  );
+  app.use(express.static(frontendDist));
+  // Page navigations to client-side routes (/home, /profile/...) are handled by
+  // React Router; any other missing file is still a 404
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' || !req.headers.accept?.includes('text/html')) {
+      return next();
+    }
+
+    res.sendFile(join(frontendDist, 'index.html'));
+  });
+} else {
+  // docker-compose: nginx strips the /api prefix before proxying here
+  app.use(api);
+}
+
 const PORT = Number(process.env.PORT) || 3000;
 
 const server = createServer(app);
