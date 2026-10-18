@@ -35,8 +35,11 @@
    VILLAIN
 ========================================= */
 
+// Long villain names in the huge display font can be wider than the screen
 .villain {
   position: relative;
+
+  overflow-x: clip;
 
   min-height: 1000px;
 
@@ -155,16 +158,37 @@
    BUTTON
 ========================================= */
 
-.customButton {
-  background-color: var(--text-h);
+// The huge villain name below overflows upwards (line-height < 1), so the
+// button needs its own layer to stay fully clickable
+.back {
+  position: relative;
+  z-index: 2;
 
-  color: var(--text-color);
+  align-self: flex-start;
 
-  cursor: pointer;
+  margin-bottom: 24px;
+
+  padding: 0;
 
   border: none;
 
-  padding: 10px 18px;
+  background: transparent;
+
+  color: #aaa69b;
+
+  font-family: 'Cormorant Garamond', serif;
+
+  font-size: 16px;
+
+  letter-spacing: 1px;
+
+  cursor: pointer;
+
+  transition: color 0.2s ease;
+}
+
+.back:hover {
+  color: #d4a52c;
 }
 
 /* =========================================
@@ -436,6 +460,8 @@
 .cardsSection {
   width: 100%;
 
+  box-sizing: border-box;
+
   max-width: 1600px;
 
   margin: 0 auto;
@@ -513,10 +539,11 @@
    CARDS GRID
 ========================================= */
 
+// Columns match the fixed Card width (333.34px) so cards don't overflow their cell
 .cards {
   display: grid;
 
-  grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+  grid-template-columns: repeat(auto-fit, 334px);
 
   justify-content: center;
 
@@ -583,7 +610,7 @@
   }
 
   .cards {
-    grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+    grid-template-columns: repeat(auto-fit, 334px);
   }
 }
 
@@ -701,4 +728,136 @@
   color: #ded6c0;
 
   text-align: center;
+}
+
+// Card is a fixed 333px wide: shrink it on very narrow phones
+@media (max-width: 400px) {
+  .cardWrapper > article {
+    zoom: 0.85;
+  }
+}
+
+/* =========================================
+   ERROR (unknown villain / failed load)
+========================================= */
+
+.errorPage {
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 100vh;
+
+  padding: 24px 16px;
+
+  background:
+    radial-gradient(ellipse at top, rgba(140, 75, 150, 0.18), transparent 60%),
+    linear-gradient(180deg, #0b1015 0%, #080d12 55%, #05070a 100%);
+
+  color: #e8dfc5;
+}
+
+.errorCard {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+
+  width: 100%;
+  max-width: 520px;
+
+  padding: 40px 32px;
+
+  border: 1px solid rgba(212, 165, 44, 0.4);
+  border-radius: 8px;
+
+  background: #0b1015;
+
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 24px rgba(212, 165, 44, 0.1);
+
+  text-align: center;
+}
+
+.errorIcon {
+  color: #d4a52c;
+
+  font-size: 3rem;
+
+  line-height: 1;
+
+  text-shadow: 0 0 18px rgba(212, 165, 44, 0.5);
+}
+
+.errorTitle {
+  margin: 0;
+
+  font-family: 'Cormorant Garamond', serif;
+
+  font-size: 2.2rem;
+
+  font-weight: 700;
+
+  letter-spacing: 2px;
+
+  text-transform: uppercase;
+}
+
+.errorText {
+  margin: 0;
+
+  color: #cfc7b0;
+
+  font-size: 1.05rem;
+
+  line-height: 1.6;
+}
+
+.errorActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+
+  margin-top: 12px;
+}
+
+.errorActions .back {
+  align-self: center;
+
+  margin-bottom: 0;
+}
+
+.errorPrimary {
+  padding: 10px 24px;
+
+  border: 1px solid #d4a52c;
+  border-radius: 4px;
+
+  background: rgba(212, 165, 44, 0.12);
+
+  color: #e8dfc5;
+
+  font-family: 'Cormorant Garamond', serif;
+
+  font-size: 1.1rem;
+
+  font-weight: 600;
+
+  letter-spacing: 1px;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    background: rgba(212, 165, 44, 0.25);
+
+    color: #d4a52c;
+
+    box-shadow: 0 0 18px rgba(212, 165, 44, 0.35);
+  }
 }

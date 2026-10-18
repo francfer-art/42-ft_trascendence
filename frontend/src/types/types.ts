@@ -99,6 +99,25 @@ export interface TranslationData {
     cardTypeTITAN: string;
 
     copyNumber: string;
+
+    portrait: string;
+    title: string;
+    basicRulesDescription: string;
+    yourTurn: string;
+    stepMoveTitle: string;
+    stepMoveText: string;
+    stepActTitle: string;
+    stepActText: string;
+    stepDrawTitle: string;
+    stepDrawText: string;
+    chooseVillain: string;
+    viewGuide: string;
+    villainNotFoundTitle: string;
+    villainNotFoundText: string;
+    loadErrorTitle: string;
+    loadErrorText: string;
+    seeAllVillains: string;
+    retry: string;
   };
 
   actions: {

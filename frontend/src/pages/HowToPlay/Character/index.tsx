@@ -135,38 +135,85 @@ export function Character({ name }: CharacterProps) {
 
   const [guide, setGuide] = useState<VillainGuide | null>(null);
 
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<'notFound' | 'failed' | null>(null);
+
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     async function loadGuide() {
       try {
-        setError(null);
-
         const response = await fetch(
           `${backendUrl}/villains/${encodeURIComponent(name)}?lang=${encodeURIComponent(language)}`,
         );
 
         if (!response.ok) {
-          throw new Error(`HTTP error: ${response.status}`);
+          setError(response.status === 404 ? 'notFound' : 'failed');
+          return;
         }
 
         const data: VillainGuide = await response.json();
 
+        setError(null);
         setGuide(data);
-      } catch (requestError) {
-        setError(
-          requestError instanceof Error
-            ? requestError.message
-            : 'Unknown error',
-        );
+      } catch {
+        setError('failed');
       }
     }
 
     loadGuide();
-  }, [name, language]);
+  }, [name, language, attempt]);
 
-  if (error) {
-    return <p className={styles.error}>Error: {error}</p>;
+  if (error && translations) {
+    const t = translations.howToPage;
+    const notFound = error === 'notFound';
+
+    return (
+      <main className={styles.errorPage}>
+        <div className={styles.errorCard}>
+          <span className={styles.errorIcon} aria-hidden="true">
+            {notFound ? '☠' : '✦'}
+          </span>
+
+          <h1 className={styles.errorTitle}>
+            {notFound ? t.villainNotFoundTitle : t.loadErrorTitle}
+          </h1>
+
+          <p className={styles.errorText}>
+            {notFound
+              ? t.villainNotFoundText.replace('{name}', name)
+              : t.loadErrorText}
+          </p>
+
+          <div className={styles.errorActions}>
+            {notFound ? (
+              <button
+                type="button"
+                className={styles.errorPrimary}
+                onClick={() => navigate('/howtoplay')}
+              >
+                {t.seeAllVillains}
+              </button>
+            ) : (
+              <button
+                type="button"
+                className={styles.errorPrimary}
+                onClick={() => setAttempt((n) => n + 1)}
+              >
+                {t.retry}
+              </button>
+            )}
+
+            <button
+              type="button"
+              className={styles.back}
+              onClick={() => navigate('/home')}
+            >
+              ← {t.backToHome}
+            </button>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   if (!guide || !translations) {
@@ -219,10 +266,11 @@ export function Character({ name }: CharacterProps) {
         <div className={styles.villainContent}>
           <div className={styles.villainInfo}>
             <button
+              type="button"
               onClick={() => navigate('/home')}
-              className={styles.customButton}
+              className={styles.back}
             >
-              {translations.howToPage.backToHome}
+              ← {translations.howToPage.backToHome}
             </button>
 
             <h1 className={styles.villainName}>{guide.name}</h1>

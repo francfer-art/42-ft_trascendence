@@ -349,6 +349,91 @@
     "es": "Retrato de {name}",
     "fr": "Portrait de {name}"
   },
+  "howToPage.title": {
+    "en": "How to Play",
+    "es": "Cómo jugar",
+    "fr": "Comment jouer"
+  },
+  "howToPage.basicRulesDescription": {
+    "en": "Each player controls a Disney villain with their own Realm and their own goal. Be the first to fulfil your villain's objective while your rivals use your Fate deck to thwart you.",
+    "es": "Cada jugador controla a un villano Disney con su propio Reino y su propio objetivo. Sé el primero en cumplir el objetivo de tu villano mientras tus rivales usan tu mazo de Destino para frustrar tus planes.",
+    "fr": "Chaque joueur incarne un méchant Disney avec son propre Royaume et son propre objectif. Soyez le premier à accomplir l'objectif de votre méchant pendant que vos rivaux utilisent votre pioche Destin pour vous en empêcher."
+  },
+  "howToPage.yourTurn": {
+    "en": "Your turn",
+    "es": "Tu turno",
+    "fr": "Votre tour"
+  },
+  "howToPage.stepMoveTitle": {
+    "en": "Move",
+    "es": "Mueve",
+    "fr": "Déplacez-vous"
+  },
+  "howToPage.stepMoveText": {
+    "en": "Move your villain to a different location in your Realm.",
+    "es": "Mueve a tu villano a una ubicación distinta de tu Reino.",
+    "fr": "Déplacez votre méchant vers un autre lieu de votre Royaume."
+  },
+  "howToPage.stepActTitle": {
+    "en": "Perform actions",
+    "es": "Realiza acciones",
+    "fr": "Effectuez des actions"
+  },
+  "howToPage.stepActText": {
+    "en": "Take any of the actions visible at that location. Heroes cover the top actions.",
+    "es": "Realiza las acciones visibles en esa ubicación. Los héroes tapan las acciones superiores.",
+    "fr": "Effectuez les actions visibles à ce lieu. Les héros recouvrent les actions du haut."
+  },
+  "howToPage.stepDrawTitle": {
+    "en": "Draw",
+    "es": "Roba",
+    "fr": "Piochez"
+  },
+  "howToPage.stepDrawText": {
+    "en": "At the end of your turn, draw until you have four cards in hand.",
+    "es": "Al final de tu turno, roba hasta tener cuatro cartas en la mano.",
+    "fr": "À la fin de votre tour, piochez jusqu'à avoir quatre cartes en main."
+  },
+  "howToPage.chooseVillain": {
+    "en": "Choose your villain",
+    "es": "Elige a tu villano",
+    "fr": "Choisissez votre méchant"
+  },
+  "howToPage.viewGuide": {
+    "en": "View guide",
+    "es": "Ver guía",
+    "fr": "Voir le guide"
+  },
+  "howToPage.villainNotFoundTitle": {
+    "en": "Villain not found",
+    "es": "Villano no encontrado",
+    "fr": "Méchant introuvable"
+  },
+  "howToPage.villainNotFoundText": {
+    "en": "There is no villain called \"{name}\" in this realm. Maybe they escaped… or the name is misspelled.",
+    "es": "No hay ningún villano llamado \"{name}\" en este reino. Quizá ha escapado… o el nombre está mal escrito.",
+    "fr": "Aucun méchant nommé « {name} » dans ce royaume. Peut-être s'est-il échappé… ou le nom est mal orthographié."
+  },
+  "howToPage.loadErrorTitle": {
+    "en": "Something went wrong",
+    "es": "Algo ha salido mal",
+    "fr": "Une erreur est survenue"
+  },
+  "howToPage.loadErrorText": {
+    "en": "We couldn't load this villain's guide. Please try again in a moment.",
+    "es": "No hemos podido cargar la guía de este villano. Inténtalo de nuevo en un momento.",
+    "fr": "Impossible de charger le guide de ce méchant. Réessayez dans un instant."
+  },
+  "howToPage.seeAllVillains": {
+    "en": "See all villains",
+    "es": "Ver todos los villanos",
+    "fr": "Voir tous les méchants"
+  },
+  "howToPage.retry": {
+    "en": "Try again",
+    "es": "Reintentar",
+    "fr": "Réessayer"
+  },
   "howToPage.realmImage": {
     "en": "{name} Realm",
     "es": "Reino de {name}",
