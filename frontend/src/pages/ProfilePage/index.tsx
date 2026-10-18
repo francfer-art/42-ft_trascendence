@@ -14,7 +14,7 @@ import defaultProfileImage from '../../assets/defaultProfile.webp';
 const getImageUrl = (image?: string | null): string => {
   if (!image) return defaultProfileImage;
   if (image.startsWith('http')) return image;
-  return `http://localhost:3000${image}`;
+  return `/api${image}`;
 };
 
 export function ProfilePage() {
@@ -245,9 +245,9 @@ export function ProfilePage() {
           </div>
 
           <div className={styles.actions}>
-            <button type="button" onClick={enterEditMode}>Edit Profile</button>
-            <button type="button" onClick={handleLogout}>Log out</button>
-            <button type="button" onClick={handleDeleteAccount}>Delete Account</button>
+            <button type="button" className={styles.primaryButton} onClick={enterEditMode}>Edit Profile</button>
+            <button type="button" className={styles.secondaryButton} onClick={handleLogout}>Log out</button>
+            <button type="button" className={styles.dangerButton} onClick={handleDeleteAccount}>Delete Account</button>
           </div>
         </div>
       ) : (
@@ -304,8 +304,8 @@ export function ProfilePage() {
           </div>
 
           <div className={styles.actions}>
-            <button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save'}</button>
-            <button type="button" onClick={cancelEditMode} disabled={saving}>Cancel</button>
+            <button type="submit" className={styles.primaryButton} disabled={saving}>{saving ? 'Saving…' : 'Save'}</button>
+            <button type="button" className={styles.secondaryButton} onClick={cancelEditMode} disabled={saving}>Cancel</button>
           </div>
         </form>
       )}

@@ -125,6 +125,62 @@
   flex-wrap: wrap;
 }
 
+/* ── Buttons (same look as the rest of the platform) ── */
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  min-width: 110px;
+  padding: 7px 16px;
+  border-radius: 4px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.primaryButton {
+  border: 1px solid #d4a52c;
+  background: rgba(212, 165, 44, 0.12);
+  color: #e8dfc5;
+
+  &:hover:not(:disabled) {
+    background: rgba(212, 165, 44, 0.25);
+    color: #d4a52c;
+    box-shadow: 0 0 18px rgba(212, 165, 44, 0.35);
+  }
+}
+
+.secondaryButton {
+  border: 1px solid rgba(232, 223, 197, 0.25);
+  background: transparent;
+  color: #aaa69b;
+
+  &:hover:not(:disabled) {
+    border-color: rgba(212, 165, 44, 0.6);
+    color: #e8dfc5;
+  }
+}
+
+.dangerButton {
+  border: 1px solid rgba(224, 93, 93, 0.6);
+  background: transparent;
+  color: #e05d5d;
+
+  &:hover:not(:disabled) {
+    background: rgba(224, 93, 93, 0.12);
+    border-color: #e05d5d;
+    box-shadow: 0 0 16px rgba(224, 93, 93, 0.3);
+  }
+}
+
 /* ── Player search ── */
 @keyframes spin {
   to { transform: rotate(360deg); }
