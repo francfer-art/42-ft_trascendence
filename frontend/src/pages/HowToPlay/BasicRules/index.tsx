@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState, type CSSProperties } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../../../contexts/UserContext';
 import { useTranslation } from '../../../hooks/useTranslation';
+import styles from './BasicRules.module.scss';
 
 interface VillainImage {
   id: string;
@@ -15,7 +16,16 @@ interface VillainListItem {
   objective: string;
 }
 
+// Same accent colors as each villain's guide page
+const VILLAIN_COLORS: Record<string, string> = {
+  scar: '#d4af37',
+  maleficent: '#1d8622',
+  'captain-hook': '#b3162b',
+  hades: '#3b6ea5',
+};
+
 export function BasicRules() {
+  const navigate = useNavigate();
   const [villains, setVillains] = useState<VillainListItem[]>([]);
   const { language } = useUser();
 
@@ -30,39 +40,88 @@ export function BasicRules() {
   }, [language]);
 
   if (!translations) {
-    return <p>...</p>;
+    return <div className={styles.page} />;
   }
 
+  const t = translations.howToPage;
+
+  const steps = [
+    { icon: '⇄', title: t.stepMoveTitle, text: t.stepMoveText },
+    { icon: '✦', title: t.stepActTitle, text: t.stepActText },
+    { icon: '❖', title: t.stepDrawTitle, text: t.stepDrawText },
+  ];
+
   return (
-    <main>
-      <h1>{translations.howToPage.title}</h1>
-      <p>{translations.howToPage.basicRulesDescription}</p>
-      {villains.map((villain) => {
-        const portrait = villain.images.find(
-          (image) => image.id === 'portrait',
-        );
+    <main className={styles.page}>
+      <button
+        type="button"
+        className={styles.back}
+        onClick={() => navigate('/home')}
+      >
+        ← {t.backToHome}
+      </button>
 
-        return (
-          <section key={villain.id}>
-            <Link to={`/howtoplay/${villain.id}`}>
-              <h2>{villain.name}</h2>
-            </Link>
+      <header className={styles.hero}>
+        <h1 className={styles.title}>{t.title}</h1>
+        <p className={styles.description}>{t.basicRulesDescription}</p>
+      </header>
 
-            <p>{villain.objective}</p>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>{t.yourTurn}</h2>
+        <ol className={styles.steps}>
+          {steps.map((step, index) => (
+            <li key={step.title} className={styles.step}>
+              <span className={styles.stepNumber}>{index + 1}</span>
+              <span className={styles.stepIcon} aria-hidden="true">
+                {step.icon}
+              </span>
+              <h3 className={styles.stepTitle}>{step.title}</h3>
+              <p className={styles.stepText}>{step.text}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-            {portrait && (
-              <img
-                src={`/api${portrait.path}`}
-                alt={translations.howToPage.portrait.replace(
-                  '{name}',
-                  villain.name,
-                )}
-                width="100"
-              />
-            )}
-          </section>
-        );
-      })}
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>{t.chooseVillain}</h2>
+        <div className={styles.villains}>
+          {villains.map((villain) => {
+            const portrait = villain.images.find(
+              (image) => image.id === 'portrait',
+            );
+
+            return (
+              <Link
+                key={villain.id}
+                to={`/howtoplay/${villain.id}`}
+                className={styles.villainCard}
+                style={
+                  {
+                    '--accent': VILLAIN_COLORS[villain.id] ?? '#d4a52c',
+                  } as CSSProperties
+                }
+              >
+                <div className={styles.portraitFrame}>
+                  {portrait && (
+                    <img
+                      className={styles.portrait}
+                      src={`/api${portrait.path}`}
+                      alt={t.portrait.replace('{name}', villain.name)}
+                    />
+                  )}
+                </div>
+
+                <div className={styles.villainBody}>
+                  <h3 className={styles.villainName}>{villain.name}</h3>
+                  <p className={styles.objectiveLabel}>{t.objectiveTitle}</p>
+                  <p className={styles.objective}>{villain.objective}</p>
+                  <span className={styles.cta}>{t.viewGuide} →</span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
     </main>
   );
 }

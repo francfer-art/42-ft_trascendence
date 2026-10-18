@@ -46,6 +46,7 @@
 
   z-index: 20;
 
+  overflow-x: hidden;
   overflow-y: auto;
 }
 
@@ -262,11 +263,13 @@
 
   font-family: 'Cormorant Garamond', serif;
 
-  font-size: 34px;
+  font-size: 27px;
 
   font-weight: 700;
 
   letter-spacing: 2px;
+
+  white-space: nowrap;
 }
 
 .logo span {
@@ -401,6 +404,8 @@
   font-size: 25px;
 
   text-align: center;
+
+  overflow-wrap: anywhere;
 }
 
 
@@ -527,9 +532,11 @@
 .logout {
   width: 100%;
 
+  box-sizing: border-box;
+
   margin-top: auto;
 
-  padding: 15px 14px;
+  padding: 15px 10px;
 
   border: none;
 
@@ -544,13 +551,16 @@
 
   align-items: center;
 
-  gap: 14px;
+  gap: 10px;
 
   font-family: 'Cormorant Garamond', serif;
 
   font-size: 17px;
 
   text-align: left;
+
+  // Long translations (e.g. "SE DÉCONNECTER") must stay on one line
+  white-space: nowrap;
 
   cursor: pointer;
 
@@ -1280,6 +1290,14 @@
     width: 210px;
   }
 
+  .logo {
+    font-size: 23px;
+  }
+
+  .logout {
+    font-size: 15px;
+  }
+
   .main {
     margin-left: 210px;
 
@@ -1347,6 +1365,9 @@
 
   .logout {
     margin-top: 15px;
+
+    display: flex;
+    justify-content: center;
   }
 
 
