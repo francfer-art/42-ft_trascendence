@@ -2,6 +2,7 @@ import type { Server, Socket } from 'socket.io';
 import { SOCKET_EVENTS } from '../socket.events';
 import { getUserRoom } from '../socket.rooms';
 import { markUserOffline, markUserOnline } from '../presence.store';
+import { scheduleLeave, cancelLeave } from '../game/game.handlers';
 
 export function registerSystemHandlers(io: Server, socket: Socket) {
   const userId = socket.data.user.id;
@@ -9,6 +10,7 @@ export function registerSystemHandlers(io: Server, socket: Socket) {
 
   socket.join(userRoom);
   markUserOnline(userId, socket.id);
+  cancelLeave(userId); // Cancel any pending lobby-leave timer from a prior disconnect
 
   console.log('[System] User joined room:', {
     userId,
@@ -27,6 +29,7 @@ export function registerSystemHandlers(io: Server, socket: Socket) {
 
   socket.on('disconnect', (reason) => {
     markUserOffline(userId, socket.id);
+    scheduleLeave(io, socket, userId); // 8s grace period before removing from lobby
 
     console.log('[System] Socket disconnected:', {
       socketId: socket.id,

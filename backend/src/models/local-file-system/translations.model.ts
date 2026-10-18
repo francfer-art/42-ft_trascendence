@@ -21,7 +21,7 @@ export class TranslationsJsonModel {
     return result;
   }
 
-  static async getByNamespace(namespace: string[], language: string): Promise<Translation[]> {
+  static async getByNamespace(namespace: string, language: string): Promise<Translation[]> {
     
     const translations = await this.getByLanguage(language);
 

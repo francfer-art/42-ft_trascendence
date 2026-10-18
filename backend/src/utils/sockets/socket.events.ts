@@ -27,9 +27,16 @@ export const SOCKET_EVENTS = {
     LOBBY_JOIN: 'game.lobby.join',
     LOBBY_LEAVE: 'game.lobby.leave',
     LOBBY_READY: 'game.lobby.ready',
+    LOBBY_KICK: 'game.lobby.kick',
+    LOBBY_UPDATED: 'game.lobby.updated',
+    LOBBY_KICKED: 'game.lobby.kicked',
+    LOBBY_ERROR: 'game.lobby.error',
+
+    VILLAIN_SELECT: 'game.villain.select',
 
     MATCH_START: 'game.match.start',
     MATCH_END: 'game.match.end',
+    MATCH_STARTED: 'game.match.started',
 
     TURN_PLAY: 'game.turn.play',
     TURN_DRAW: 'game.turn.draw',

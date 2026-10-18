@@ -7,7 +7,6 @@ export const createCardRouter = (cardModel: CardModelContract) => {
 
   const cardController = new CardController(cardModel);
 
-//   cardRouter.get('/', villainController.getAll);
   cardRouter.get('/:cardId', cardController.getById);
 
   return cardRouter;

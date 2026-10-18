@@ -1,4 +1,4 @@
-@backend = http://localhost:3000
+@backend = http://localhost/api
 @testEmail = test@example.com
 @testPassword = password123
 
@@ -59,6 +59,14 @@ GET {{backend}}/villains/captain-hook
 ### Get villain by id in spanish
 
 GET {{backend}}/villains/scar?lang=es
+
+### Get all cards for a villain (villain and fate decks)
+
+GET {{backend}}/villains/scar/cards
+
+### Get all cards for a villain in Spanish
+
+GET {{backend}}/villains/scar/cards?lang=es
 
 ### Get card by id
 

@@ -87,6 +87,23 @@
   border-color: rgba(212, 165, 44, 0.25);
   color: #e8dfc5;
 }
+.convItemUnread {
+  color: #e8dfc5;
+}
+
+.convNameUnread {
+  color: #e8dfc5;
+}
+
+.unreadDot {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d4a52c;
+  box-shadow: 0 0 6px rgba(212, 165, 44, 0.6);
+}
 
 .convAvatar {
   position: relative;

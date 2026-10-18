@@ -79,6 +79,7 @@
    ========================================= */
 
 .content {
+  box-sizing: border-box;
   position: absolute;
 
   inset: 0;
@@ -88,7 +89,7 @@
   display: flex;
   flex-direction: column;
 
-  padding: 18px;
+  padding: 18px 18px 38px;
 }
 
 
@@ -97,8 +98,10 @@
    ========================================= */
 
 .titleContainer {
-  width: 100%;
-  max-width: 100%;
+  // Reserve the decorated corners of the name box at every card size.
+  width: 80%;
+  max-width: 80%;
+  align-self: center;
 
   overflow: hidden;
 
@@ -138,6 +141,9 @@
    ========================================= */
 
 .text {
+  box-sizing: border-box;
+  min-height: 0;
+  min-width: 0;
   /*
    * Ocupa el espacio disponible entre
    * el título y la zona inferior.
@@ -169,6 +175,12 @@
   overflow: hidden;
 }
 
+.description {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 
 .fateText {
   color: #000;
@@ -270,7 +282,7 @@
   }
 
   .content {
-    padding: 16px;
+    padding: 16px 16px 36px;
   }
 
   .title {
@@ -308,7 +320,7 @@
   }
 
   .content {
-    padding: 14px;
+    padding: 14px 14px 31px;
   }
 
   .title {

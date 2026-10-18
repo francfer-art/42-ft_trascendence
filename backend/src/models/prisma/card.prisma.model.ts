@@ -1,5 +1,10 @@
+import type { Prisma } from '@prisma/client';
 import { prisma } from '../../utils/prisma';
-import { CardDetail  } from '../../types/villains.types';
+import type { CardDetail } from '../../types/villains.types';
+
+type CardWithDetails = Prisma.CardGetPayload<{
+  include: { translations: true; deck: true };
+}>;
 
 export class CardPrismaModel {
   static async getById(
@@ -24,10 +29,39 @@ export class CardPrismaModel {
       return null;
     }
 
+    return this.toCardDetail(card, language);
+  }
+
+  static async getByVillainId(
+    villainId: string,
+    language: string,
+  ): Promise<CardDetail[] | null> {
+    const villain = await prisma.villain.findUnique({
+      where: { id: villainId },
+      select: { id: true },
+    });
+
+    if (!villain) {
+      return null;
+    }
+
+    const cards = await prisma.card.findMany({
+      where: { villainId },
+      include: {
+        translations: { where: { language } },
+        deck: true,
+      },
+      orderBy: { id: 'asc' },
+    });
+
+    return cards.map((card) => this.toCardDetail(card, language));
+  }
+
+  private static toCardDetail(card: CardWithDetails, language: string): CardDetail {
     const translation = card.translations[0];
 
     if (!translation) {
-      throw new Error(`Translation "${language}" not found for card "${id}"`);
+      throw new Error(`Translation "${language}" not found for card "${card.id}"`);
     }
 
     return {

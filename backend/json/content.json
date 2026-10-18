@@ -219,6 +219,26 @@
     "es": "...",
     "fr": "..."
   },
+  "howToPage.objectiveTitle": {
+    "en": "Objective",
+    "es": "Objetivo",
+    "fr": "Objectif"
+  },
+  "howToPage.realmDescription": {
+    "en": "The realm is divided into {count} locations.",
+    "es": "El reino está dividido en {count} localizaciones.",
+    "fr": "Le royaume est divisé en {count} lieux."
+  },
+  "howToPage.realmLocationOrder": {
+    "en": "From left to right:",
+    "es": "De izquierda a derecha:",
+    "fr": "De gauche à droite :"
+  },
+  "howToPage.successionPile": {
+    "en": "Succession pile",
+    "es": "Pila de Sucesión",
+    "fr": "Pile de Succession"
+  },
   "howToPage.scarSubtitle": {
     "en": "\"Long live the king.\"",
     "es": "\"Larga vida al rey.\"",

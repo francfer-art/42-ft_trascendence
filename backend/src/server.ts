@@ -17,6 +17,7 @@ import { TranslationsJsonModel } from './models/local-file-system/translations.m
 import { socketAuth } from './utils/sockets/socket.auth';
 import { registerSocialHandlers } from './utils/sockets/social/social.handlers';
 import { registerSystemHandlers } from './utils/sockets/system/system.handlers';
+import { registerGameHandlers } from './utils/sockets/game/game.handlers';
 import { setSocketServer } from './utils/sockets/socket.server';
 import { createVillainRouter } from './routes/villain.routes';
 import { createCardRouter } from './routes/card.routes';
@@ -120,6 +121,7 @@ io.on('connection', (socket) => {
   });
   registerSocialHandlers(io, socket);
   registerSystemHandlers(io, socket);
+  registerGameHandlers(io, socket);
 });
 
 server.listen(PORT, '0.0.0.0', () => {

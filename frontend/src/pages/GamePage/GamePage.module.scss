@@ -1,0 +1,322 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100vh;
+  padding: 8px;
+  box-sizing: border-box;
+  color: #e8dfc5;
+  background: #0d0a13;
+}
+
+.desktopOnly {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 16px;
+  text-align: center;
+  color: #e8dfc5;
+  background: #0d0a13;
+}
+
+.button {
+  padding: 4px 10px;
+  border: 1px solid rgba(232, 223, 197, 0.5);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+// ── Placeholder box ──
+.slot {
+  position: relative;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 4px;
+  border: 1px solid rgba(232, 223, 197, 0.45);
+  border-radius: 4px;
+}
+
+.slotLabel {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ── Layout ──
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px;
+  border: 1px solid rgba(232, 223, 197, 0.45);
+  border-radius: 4px;
+}
+
+.toolbarGroup {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.main {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+.chat {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.boardArea {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+}
+
+.single {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 100%;
+
+  > .playerArea {
+    flex: 1;
+  }
+}
+
+// Same board as the player view, scaled down so all four fit on screen
+// Boards on top and bottom rows, free space in the middle row
+.overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: auto minmax(140px, 1fr) auto;
+  gap: 8px;
+  min-height: 100%;
+
+  .playerArea {
+    zoom: 0.32;
+  }
+}
+
+.tableCenter {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  border-style: dashed;
+}
+
+// Players across the table see their board upside down from my seat
+.facingMe {
+  transform: rotate(180deg);
+}
+
+// ── Player area: piles | realm | piles ──
+.playerArea {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid rgba(232, 223, 197, 0.3);
+  border-radius: 8px;
+}
+
+.me {
+  border-color: rgba(212, 165, 44, 0.8);
+}
+
+.playerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.power {
+  min-width: 60px;
+}
+
+.playerBody {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pileColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pile {
+  width: 70px;
+  height: 98px;
+}
+
+// ── Realm: destiny lane / board / villain lane ──
+.realm {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lane {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.laneCell {
+  min-height: 80px;
+  border-style: dashed;
+}
+
+.realmBoard {
+  padding: 6px;
+}
+
+.locations {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.location {
+  aspect-ratio: 4 / 3;
+}
+
+.action {
+  position: absolute;
+  width: 22%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(212, 165, 44, 0.8);
+  border-radius: 50%;
+  font-size: 0.65rem;
+}
+
+.topLeft {
+  top: 8%;
+  left: 6%;
+}
+.topRight {
+  top: 8%;
+  right: 6%;
+}
+.bottomLeft {
+  bottom: 8%;
+  left: 6%;
+}
+.bottomRight {
+  bottom: 8%;
+  right: 6%;
+}
+
+// Free center for extra actions (e.g. Captain Hook)
+.extraActions {
+  position: absolute;
+  inset: 38% 30%;
+  border-style: dashed;
+  text-align: center;
+}
+
+// ── Cards and drag and drop (no rules, cards just move between zones) ──
+.cardRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.card {
+  flex-shrink: 0;
+  width: 44px;
+  height: 62px;
+  background: #0d0a13;
+  cursor: grab;
+
+  .slotLabel {
+    font-size: 0.5rem;
+    white-space: normal;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+  &:hover {
+    border-color: rgba(212, 165, 44, 0.9);
+  }
+}
+
+.dropArea {
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.dropOver {
+  border-color: rgba(39, 174, 96, 0.9);
+  background: rgba(39, 174, 96, 0.15);
+}
+
+.hand {
+  flex-shrink: 0;
+
+  .card {
+    width: 70px;
+    height: 98px;
+
+    .slotLabel {
+      font-size: 0.65rem;
+    }
+  }
+}
+
+// ── Zoom (Shift + hover) ──
+.zoomOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 7, 10, 0.6);
+  pointer-events: none;
+}
+
+.zoomCard {
+  width: 260px;
+  height: 364px;
+  padding: 16px;
+  border: 2px solid rgba(212, 165, 44, 0.9);
+  border-radius: 12px;
+  background: #0d0a13;
+
+  .slotLabel {
+    font-size: 1.1rem;
+    opacity: 1;
+    white-space: normal;
+  }
+}

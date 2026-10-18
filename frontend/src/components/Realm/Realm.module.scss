@@ -1,0 +1,112 @@
+.realm {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+
+  &:focus-visible {
+    outline: 2px solid var(--villain-card, #d3ac69);
+    outline-offset: 4px;
+  }
+}
+
+.board {
+  position: relative;
+  width: 100%;
+  min-width: 900px;
+  container-type: inline-size;
+  color: var(--villain-card, #d3ac69);
+  font-family: 'Esteban', Georgia, serif;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.name,
+.objective,
+.text,
+.locations {
+  position: absolute;
+  box-sizing: border-box;
+  margin: 0;
+  text-align: center;
+}
+
+.name {
+  top: 2%;
+  left: 1.3%;
+  width: 13%;
+  font-size: 1.2cqw;
+  font-weight: 400;
+  line-height: 1.2;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.objective {
+  top: 66%;
+  left: 2.7%;
+  width: 10.1%;
+  height: 26%;
+  display: flex;
+  flex-direction: column;
+}
+
+.objectiveTitle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30%;
+  margin: 0;
+  font-size: 0.95cqw;
+  font-weight: 400;
+  line-height: 1.15;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.objectiveText {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: safe center;
+  justify-content: center;
+  margin: 0;
+  padding: 0.5cqw 0;
+  overflow-y: auto;
+  font-family: 'Cabin', sans-serif;
+  font-size: 0.8cqw;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.text {
+  top: 94.8%;
+  left: 1.3%;
+  width: 13%;
+  font-size: 0.95cqw;
+  line-height: 1.2;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.locations {
+  top: 81%;
+  left: 16.7%;
+  right: 0.7%;
+  display: grid;
+  grid-template-columns: repeat(var(--location-count), minmax(0, 1fr));
+  gap: 0.8%;
+  padding: 0;
+  list-style: none;
+}
+
+.location {
+  padding: 0 0.4cqw;
+  font-size: 1.15cqw;
+  line-height: 1.2;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}

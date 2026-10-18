@@ -4,6 +4,7 @@ import { useUser } from '../../../contexts/UserContext';
 import { useTranslation } from '../../../hooks/useTranslation';
 import styles from './Character.module.scss';
 import Card from '../../../components/Card';
+import Realm from '../../../components/Realm';
 
 interface VillainImage {
   id: string;
@@ -178,6 +179,9 @@ export function Character({ name }: CharacterProps) {
     .href;
 
   const realmImage = guide.images.find((image) => image.id === 'realm');
+  const realmLocations = [...guide.realm].sort(
+    (a, b) => a.position - b.position,
+  );
   const translationKeys = villainTranslationKeys[name];
 
   const cardTypeOrder: CardType[] = [
@@ -218,7 +222,7 @@ export function Character({ name }: CharacterProps) {
               onClick={() => navigate('/home')}
               className={styles.customButton}
             >
-              {language === 'es' ? 'PÁGINA PRINCIPAL' : 'BACK TO HOME'}
+              {translations.howToPage.backToHome}
             </button>
 
             <h1 className={styles.villainName}>{guide.name}</h1>
@@ -233,7 +237,7 @@ export function Character({ name }: CharacterProps) {
           <div className={styles.objectiveGuide}>
             <div className={styles.objective}>
               <h2 className={styles.objectiveTitle}>
-                ♛ {language === 'es' ? 'Objetivo' : 'Objective'}
+                ♛ {translations.howToPage.objectiveTitle}
               </h2>
 
               <p>{guide.objective}</p>
@@ -264,19 +268,18 @@ export function Character({ name }: CharacterProps) {
 
           <div>
             <h2 className={styles.realmTitle}>
-              {language === 'es' ? 'EL REINO' : 'THE REALM'}
+              {translations.howToPage.realmTitle}
             </h2>
 
             <p>
-              {language === 'es'
-                ? `El reino está dividido en ${guide.realm.length} localizaciones.`
-                : `The realm is divided into ${guide.realm.length} locations.`}
+              {translations.howToPage.realmDescription.replace(
+                '{count}',
+                String(realmLocations.length),
+              )}
             </p>
 
             <p>
-              {language === 'es'
-                ? 'De izquierda a derecha:'
-                : 'From left to right:'}
+              {translations.howToPage.realmLocationOrder}
             </p>
           </div>
         </header>
@@ -286,7 +289,7 @@ export function Character({ name }: CharacterProps) {
         ========================= */}
 
         <div className={styles.locations}>
-          {guide.realm.map((location) => (
+          {realmLocations.map((location) => (
             <div className={styles.location} key={location.id}>
               {/* NUMBER */}
 
@@ -317,10 +320,14 @@ export function Character({ name }: CharacterProps) {
 
         <div className={styles.realmContent}>
           {realmImage && (
-            <img
-              src={`${backendUrl}${realmImage.path}`}
-              alt={`${guide.name} Realm`}
-              className={styles.realmBoard}
+            <Realm
+              id={name}
+              imagePath={`${backendUrl}${realmImage.path}`}
+              name={guide.name}
+              objectiveTitle={translations.howToPage.objectiveTitle}
+              objectiveText={guide.objective}
+              locations={realmLocations.map((location) => location.name)}
+              text={name === 'scar' ? translations.howToPage.successionPile : undefined}
             />
           )}
         </div>
@@ -400,7 +407,6 @@ export function Character({ name }: CharacterProps) {
                               id={card.id}
                               name={card.name}
                               text={card.text}
-                              quantity={card.quantity}
                               strength={card.strength}
                               type={translations.cardTypes[card.type]}
                               typeKey={card.type}

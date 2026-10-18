@@ -76,4 +76,5 @@ export interface CardDetail extends Card {
 
 export interface CardModelContract {
   getById(id: string, language: string): Promise<CardDetail | null>;
+  getByVillainId(villainId: string, language: string): Promise<CardDetail[] | null>;
 }

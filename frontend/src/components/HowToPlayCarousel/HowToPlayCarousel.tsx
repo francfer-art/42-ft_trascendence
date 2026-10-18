@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
 import { useTranslation } from '../../hooks/useTranslation';
 
+import howCarousel from '../../assets/howCarrousel.webp';
 import captainHookCarousel from '../../assets/captain-hookCarrousel.webp';
 import hadesCarousel from '../../assets/hadesCarrousel.webp';
 import maleficentCarousel from '../../assets/maleficientCarrousel.webp';
@@ -92,6 +93,7 @@ export function HowToPlayCarousel() {
           {
             id: 'generic',
             title: translations?.homePage.howToPlayDescription ?? 'BASIC RULES',
+            image: howCarousel,
             route: '/howtoplay',
           },
 
@@ -122,12 +124,12 @@ export function HowToPlayCarousel() {
       return;
     }
 
-    const timer = setInterval(() => {
+    const timer = setTimeout(() => {
       setCurrentSlide((current) => (current + 1) % slides.length);
     }, 5000);
 
-    return () => clearInterval(timer);
-  }, [slides.length]);
+    return () => clearTimeout(timer);
+  }, [slides.length, currentSlide]);
 
   /*
    * =====================================================

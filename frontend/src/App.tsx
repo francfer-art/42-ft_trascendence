@@ -19,6 +19,8 @@ import { PublicProfilePage } from './pages/PublicProfilePage';
 import { MessagesPage } from './pages/MessagesPage';
 import { FriendsPage } from './pages/FriendsPage';
 import { NotificationsPage } from './pages/NotificationsPage';
+import { LobbyPage } from './pages/LobbyPage';
+import { GamePage } from './pages/GamePage';
 
 function App() {
   return (
@@ -72,6 +74,8 @@ function App() {
                     path="/notifications"
                     element={<NotificationsPage />}
                   />
+                  <Route path="/lobby/:code" element={<LobbyPage />} />
+                  <Route path="/game/:code" element={<GamePage />} />
                 </Route>
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>

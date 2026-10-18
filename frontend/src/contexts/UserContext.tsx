@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -29,6 +30,9 @@ interface UserContextValue {
   language: Language;
   setLanguage: React.Dispatch<React.SetStateAction<Language>>;
   socket: Socket | null;
+  unreadConvIds: Set<number>;
+  markConvRead: (convId: number) => void;
+  clearUnreadConvs: () => void;
 }
 
 const UserContext = createContext<UserContextValue | undefined>(undefined);
@@ -44,17 +48,26 @@ export function UserProvider({ children }: UserProviderProps) {
     try {
       const saved = localStorage.getItem('language');
       if (saved === 'en' || saved === 'es' || saved === 'fr') return saved;
-    } catch {}
+    } catch {
+      console.log('Could not access localStorage for language');
+    }
     return 'en';
   });
   const { showToast } = useToast();
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const socketRef = useRef<Socket | null>(null);
+  const [unreadConvIds, setUnreadConvIds] = useState<Set<number>>(new Set());
+
+  const userId = user?.id;
 
   useEffect(() => {
     document.documentElement.lang = language;
-    try { localStorage.setItem('language', language); } catch {}
+    try {
+      localStorage.setItem('language', language);
+    } catch {
+      console.log('Could not access localStorage for language');
+    }
   }, [language]);
 
   useEffect(() => {
@@ -70,7 +83,6 @@ export function UserProvider({ children }: UserProviderProps) {
         }
 
         const data = await response.json();
-
         setUser(data.user);
       } catch (error) {
         console.error('Could not fetch user:', error);
@@ -83,14 +95,26 @@ export function UserProvider({ children }: UserProviderProps) {
     fetchUser();
   }, []);
 
+  // Seed unread conv IDs from persisted DB notifications on login
   useEffect(() => {
-    if (!user) {
-      console.log('[Socket] No user, disconnecting');
+    if (!userId) return;
+    fetch('/api/users/notifications', { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) return;
+        const ids: number[] = (data.messageNotifications ?? []).map(
+          (n: { conversationId: number }) => n.conversationId,
+        );
+        setUnreadConvIds(ids.length ? new Set(ids) : new Set());
+      })
+      .catch(() => {});
+  }, [userId]);
 
+  useEffect(() => {
+    if (!userId) {
+      console.log('[Socket] No user, disconnecting');
       socketRef.current?.disconnect();
       socketRef.current = null;
-      setSocket(null);
-
       return;
     }
 
@@ -101,9 +125,7 @@ export function UserProvider({ children }: UserProviderProps) {
 
     console.log('[Socket] Creating connection...');
 
-    const newSocket = io({
-      withCredentials: true,
-    });
+    const newSocket = io({ withCredentials: true });
 
     socketRef.current = newSocket;
     setSocket(newSocket);
@@ -122,20 +144,16 @@ export function UserProvider({ children }: UserProviderProps) {
 
     return () => {
       console.log('[Socket] Cleanup');
-
       newSocket.disconnect();
-
       if (socketRef.current === newSocket) {
         socketRef.current = null;
         setSocket(null);
       }
     };
-  }, [user?.id]);
+  }, [userId]);
 
   useEffect(() => {
-    if (!socket || !user) {
-      return;
-    }
+    if (!socket || !user) return;
 
     const handleFriendRequested = ({
       senderName,
@@ -151,7 +169,6 @@ export function UserProvider({ children }: UserProviderProps) {
     };
 
     socket.on('social.friend.requested', handleFriendRequested);
-
     return () => {
       socket.off('social.friend.requested', handleFriendRequested);
     };
@@ -165,11 +182,14 @@ export function UserProvider({ children }: UserProviderProps) {
       message,
     }: {
       conversationId: number;
-      message: { sender: { displayName?: string | null; login?: string | null } };
+      message: {
+        sender: { displayName?: string | null; login?: string | null };
+      };
     }) => {
-      // Don't toast if the user is already viewing that conversation
       const currentPath = window.location.pathname;
       if (currentPath === `/messages/${conversationId}`) return;
+
+      setUnreadConvIds((prev) => new Set([...prev, conversationId]));
 
       const senderName =
         message.sender.displayName ?? message.sender.login ?? 'Someone';
@@ -182,7 +202,6 @@ export function UserProvider({ children }: UserProviderProps) {
     };
 
     socket.on('social.message.received', handleMessageReceived);
-
     return () => {
       socket.off('social.message.received', handleMessageReceived);
     };
@@ -195,15 +214,22 @@ export function UserProvider({ children }: UserProviderProps) {
         credentials: 'include',
       });
 
-      if (!response.ok) {
-        throw new Error('Logout failed');
-      }
-
+      if (!response.ok) throw new Error('Logout failed');
       setUser(null);
     } catch (error) {
       console.error('Could not logout:', error);
     }
   };
+
+  const markConvRead = useCallback((convId: number) => {
+    setUnreadConvIds((prev) => {
+      const next = new Set(prev);
+      next.delete(convId);
+      return next;
+    });
+  }, []);
+
+  const clearUnreadConvs = useCallback(() => setUnreadConvIds(new Set()), []);
 
   const value = useMemo(
     () => ({
@@ -213,14 +239,27 @@ export function UserProvider({ children }: UserProviderProps) {
       logout,
       language,
       setLanguage,
-      socket,
+      // Derive from user: when logged out these are null/empty without needing setState in effects
+      socket: user ? socket : null,
+      unreadConvIds: user ? unreadConvIds : (new Set<number>()),
+      markConvRead,
+      clearUnreadConvs,
     }),
-    [user, loading, language, socket],
+    [
+      user,
+      loading,
+      language,
+      socket,
+      unreadConvIds,
+      markConvRead,
+      clearUnreadConvs,
+    ],
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useUser() {
   const context = useContext(UserContext);
 

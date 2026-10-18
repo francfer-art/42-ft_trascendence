@@ -23,3 +23,7 @@ export function markUserOffline(userId: number, socketId: string) {
 export function isUserOnline(userId: number) {
   return (activeConnections.get(userId)?.size ?? 0) > 0;
 }
+
+export function getUserSocketIds(userId: number): Set<string> {
+  return activeConnections.get(userId) ?? new Set<string>();
+}

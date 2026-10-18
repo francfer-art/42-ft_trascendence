@@ -51,7 +51,7 @@ const friendName = (u: ChatUser) =>
 export function MessagesPage() {
   const { conversationId } = useParams<{ conversationId?: string }>();
   const navigate = useNavigate();
-  const { socket, user } = useUser();
+  const { socket, user, unreadConvIds, markConvRead } = useUser();
 
   const [conversations, setConversations] = useState<ConversationListItem[]>([]);
   const [messages, setMessages] = useState<MessageItem[]>([]);
@@ -110,7 +110,9 @@ export function MessagesPage() {
 
   // ── effects ───────────────────────────────────────────────────────────────
 
-  useEffect(() => { void loadConversations(); }, []);
+  useEffect(() => {
+    void loadConversations();
+  }, []);
 
   useEffect(() => {
     if (conversationId) {
@@ -122,6 +124,7 @@ export function MessagesPage() {
   useEffect(() => {
     if (!selectedId) { setMessages([]); return; }
     void loadMessages(selectedId);
+    markConvRead(selectedId);
   }, [selectedId]);
 
   // scroll to bottom whenever messages change
@@ -137,15 +140,12 @@ export function MessagesPage() {
       conversationId: incomingId,
       message,
     }: { conversationId: number; message: MessageItem }) => {
-      if (incomingId !== selectedId) {
-        void loadConversations();
-        return;
-      }
+      void loadConversations();
+      if (incomingId !== selectedId) return;
       setMessages((prev) => {
         if (prev.some((m) => m.id === message.id)) return prev;
         return [...prev, message];
       });
-      void loadConversations();
     };
 
     socket.on('social.message.received', handleIncoming);
@@ -173,6 +173,7 @@ export function MessagesPage() {
   const handleSelectConversation = (id: number) => {
     setSelectedId(id);
     navigate(`/messages/${id}`);
+    markConvRead(id);
   };
 
   const handleSendMessage = async () => {
@@ -226,11 +227,13 @@ export function MessagesPage() {
               const isActive = conv.id === selectedId;
               const preview = conv.lastMessage?.content ?? 'No messages yet';
 
+              const hasUnread = unreadConvIds.has(conv.id);
+
               return (
                 <button
                   key={conv.id}
                   type="button"
-                  className={`${styles.convItem} ${isActive ? styles.convItemActive : ''}`}
+                  className={`${styles.convItem} ${isActive ? styles.convItemActive : ''} ${hasUnread ? styles.convItemUnread : ''}`}
                   onClick={() => handleSelectConversation(conv.id)}
                 >
                   <div className={styles.convAvatar}>
@@ -245,9 +248,11 @@ export function MessagesPage() {
                   </div>
 
                   <div className={styles.convMeta}>
-                    <span className={styles.convName}>{name}</span>
+                    <span className={`${styles.convName} ${hasUnread ? styles.convNameUnread : ''}`}>{name}</span>
                     <span className={styles.convPreview}>{preview}</span>
                   </div>
+
+                  {hasUnread && <span className={styles.unreadDot} aria-label="Unread messages" />}
                 </button>
               );
             })

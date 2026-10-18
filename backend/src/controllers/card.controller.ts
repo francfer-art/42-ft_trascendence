@@ -1,22 +1,6 @@
 import type { Request, Response } from 'express';
 import { getRequestedLanguage } from '../utils/language';
-import { Card } from '../types/villains.types';
-
-export interface CardDeck {
-  type: 'VILLAIN' | 'FATE';
-  backImagePath: string;
-  bottomPowerImagePath: string;
-  bottomPowerlessImagePath: string;
-}
-
-export interface CardDetail extends Card {
-  villainId: string;
-  deck: CardDeck;
-}
-
-export interface CardModelContract {
-  getById(id: string, language: string): Promise<CardDetail | null>;
-}
+import type { CardModelContract } from '../types/villains.types';
 
 export class CardController {
   constructor(private cardModel: CardModelContract) {}
@@ -25,21 +9,28 @@ export class CardController {
     const cardId = req.params.cardId.toLowerCase();
     const language = getRequestedLanguage(req.query.lang);
 
-    const villain = await this.cardModel.getById(cardId, language);
+    const card = await this.cardModel.getById(cardId, language);
 
-    if (!villain) {
+    if (!card) {
       return res.status(404).json({
-        message: `Villain "${cardId}" not found`,
+        message: `Card "${cardId}" not found`,
       });
     }
 
-    return res.json(villain);
+    return res.json(card);
   };
 
-  // getAll = async (req: Request, res: Response) => {
-  //   const language = getRequestedLanguage(req.query);
-  //   const villains: Villain[] = await this.cardModel.getAll(language);
+  getByVillainId = async (req: Request<{ villainId: string }>, res: Response) => {
+    const villainId = req.params.villainId.toLowerCase();
+    const language = getRequestedLanguage(req.query.lang);
+    const cards = await this.cardModel.getByVillainId(villainId, language);
 
-  //   return res.json(villains);
-  // };
+    if (!cards) {
+      return res.status(404).json({
+        message: `Villain "${villainId}" not found`,
+      });
+    }
+
+    return res.json(cards);
+  };
 }

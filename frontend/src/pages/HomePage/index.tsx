@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import styles from './HomePage.module.scss';
@@ -16,20 +16,31 @@ const getImageUrl = (image?: string | null): string => {
 
 export function HomePage() {
   const navigate = useNavigate();
-  const { language, user, socket, logout } = useUser();
+  const { language, user, socket, logout, unreadConvIds } = useUser();
 
   const translations = useTranslation(language, 'homePage,cardTypes');
 
   const [pendingCount, setPendingCount] = useState(0);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [joinCode, setJoinCode] = useState('');
+  const [joinError, setJoinError] = useState<string | null>(null);
+  const [joiningLobby, setJoiningLobby] = useState(false);
 
   const loadPendingCount = async () => {
-    if (!user) { setPendingCount(0); return; }
+    if (!user) {
+      setPendingCount(0);
+      return;
+    }
     try {
-      const res = await fetch('/api/users/friend-requests', { credentials: 'include' });
+      const res = await fetch('/api/users/friend-requests', {
+        credentials: 'include',
+      });
       if (!res.ok) return;
       const data = await res.json();
       setPendingCount((data.requests ?? []).length);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
 
   useEffect(() => {
@@ -40,13 +51,40 @@ export function HomePage() {
     if (!socket || !user) return;
     const onRequest = () => void loadPendingCount();
     socket.on('social.friend.requested', onRequest);
-    return () => { socket.off('social.friend.requested', onRequest); };
+    return () => {
+      socket.off('social.friend.requested', onRequest);
+    };
   }, [socket, user]);
 
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
+
+  const handleCreateGame = useCallback(() => {
+    if (!socket) return;
+    socket.emit('game.lobby.create', {}, (ack: { success: boolean; code?: string; error?: string }) => {
+      if (ack.success && ack.code) {
+        navigate(`/lobby/${ack.code}`);
+      }
+    });
+  }, [socket, navigate]);
+
+  const handleJoinGame = useCallback(() => {
+    if (!socket || joinCode.length !== 4) return;
+    setJoiningLobby(true);
+    setJoinError(null);
+    socket.emit('game.lobby.join', { code: joinCode }, (ack: { success: boolean; code?: string; error?: string }) => {
+      setJoiningLobby(false);
+      if (ack.success && ack.code) {
+        setShowJoinModal(false);
+        setJoinCode('');
+        navigate(`/lobby/${ack.code}`);
+      } else {
+        setJoinError(ack.error ?? 'Could not join lobby');
+      }
+    });
+  }, [socket, joinCode, navigate]);
 
   if (!translations) {
     return <p>...</p>;
@@ -70,7 +108,12 @@ export function HomePage() {
             <img
               src={getImageUrl(user?.image)}
               alt={displayName}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: '50%',
+              }}
             />
           </div>
 
@@ -100,6 +143,9 @@ export function HomePage() {
           >
             <span>✉</span>
             {translations.homePage.chat}
+            {unreadConvIds.size > 0 && (
+              <span className={styles.sideBadge}>{unreadConvIds.size}</span>
+            )}
           </button>
 
           <button
@@ -116,7 +162,9 @@ export function HomePage() {
           >
             <span>♢</span>
             {translations.homePage.notifications}
-            {pendingCount > 0 && <span className={styles.sideBadge}>{pendingCount}</span>}
+            {pendingCount > 0 && (
+              <span className={styles.sideBadge}>{pendingCount}</span>
+            )}
           </button>
 
           <button className={styles.navItem}>
@@ -141,7 +189,6 @@ export function HomePage() {
         ================================================= */}
 
         <section className={styles.hero}>
-
           <div className={styles.heroOverlay} />
 
           <div className={styles.heroContent}>
@@ -170,7 +217,7 @@ export function HomePage() {
             <section className={styles.actions}>
               <button
                 className={styles.createGame}
-                onClick={() => navigate('/play')}
+                onClick={handleCreateGame}
               >
                 <span className={styles.actionIcon}>+</span>
 
@@ -183,7 +230,7 @@ export function HomePage() {
 
               <button
                 className={styles.joinGame}
-                onClick={() => navigate('/play')}
+                onClick={() => { setShowJoinModal(true); setJoinError(null); setJoinCode(''); }}
               >
                 <span className={styles.actionIcon}>👥</span>
 
@@ -269,6 +316,38 @@ export function HomePage() {
           </div>
         </section>
       </main>
+
+      {/* ── Join Game Modal ── */}
+      {showJoinModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowJoinModal(false)}>
+          <div className={styles.joinModal} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.modalTitle}>JOIN GAME</h3>
+            <p className={styles.modalSubtitle}>Enter the 4-character code from the host</p>
+            <input
+              className={styles.codeInput}
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value.toUpperCase().slice(0, 4))}
+              placeholder="A72F"
+              maxLength={4}
+              autoFocus
+              onKeyDown={(e) => e.key === 'Enter' && joinCode.length === 4 && void handleJoinGame()}
+            />
+            {joinError && <p className={styles.joinError}>{joinError}</p>}
+            <div className={styles.modalActions}>
+              <button
+                className={styles.joinConfirmBtn}
+                disabled={joinCode.length !== 4 || joiningLobby}
+                onClick={() => void handleJoinGame()}
+              >
+                {joiningLobby ? 'JOINING…' : 'JOIN'}
+              </button>
+              <button className={styles.cancelBtn} onClick={() => setShowJoinModal(false)}>
+                CANCEL
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
